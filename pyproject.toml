@@ -1,0 +1,84 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-canary-tokens"
+version = "0.1.0"
+description = "Plant synthetic canary facts in agent systems to detect memory breaches and data exfiltration."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+authors = [
+    { name = "MuVeraAI Corporation", email = "oss@muveraai.com" },
+]
+keywords = [
+    "agent",
+    "canary",
+    "security",
+    "honeypot",
+    "llm",
+    "ai-safety",
+    "data-exfiltration",
+    "memory-breach",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "mypy>=1.9",
+    "ruff>=0.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/aumos-ai/agent-canary-tokens"
+Repository = "https://github.com/aumos-ai/agent-canary-tokens"
+Issues = "https://github.com/aumos-ai/agent-canary-tokens/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_canary"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "ANN", # flake8-annotations
+    "N",   # pep8-naming
+]
+ignore = [
+    "ANN101",  # Missing type annotation for `self`
+    "ANN102",  # Missing type annotation for `cls`
+]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=agent_canary --cov-report=term-missing --cov-fail-under=80"
