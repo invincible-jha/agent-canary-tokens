@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<!--
+  SPDX-License-Identifier: Apache-2.0
+  Copyright (c) 2026 MuVeraAI Corporation
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Is My Data in AI? — Canary Token Generator</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #1a1a1a;
+      --muted: #666666;
+      --border: #e0e0e0;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #16a34a;
+      --error: #dc2626;
+      --card-bg: #f9fafb;
+      --code-bg: #f3f4f6;
+      --radius: 8px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --fg: #e2e8f0;
+        --muted: #94a3b8;
+        --border: #334155;
+        --accent: #3b82f6;
+        --accent-hover: #60a5fa;
+        --success: #22c55e;
+        --error: #ef4444;
+        --card-bg: #1e293b;
+        --code-bg: #1e293b;
+      }
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 640px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1.125rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.625rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .token-output {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.8125rem;
+      word-break: break-all;
+      margin: 1rem 0;
+      display: none;
+    }
+
+    .token-output.visible {
+      display: block;
+    }
+
+    .copy-btn {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-size: 0.75rem;
+      padding: 0.375rem 0.75rem;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .check-section {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .check-section input {
+      flex: 1;
+      padding: 0.625rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 0.875rem;
+    }
+
+    .status {
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .status.visible {
+      display: block;
+    }
+
+    .status.reported {
+      color: var(--error);
+      font-weight: 600;
+    }
+
+    .status.safe {
+      color: var(--success);
+    }
+
+    .status.error {
+      color: var(--error);
+    }
+
+    .explainer {
+      margin-top: 2rem;
+      font-size: 0.8125rem;
+      color: var(--muted);
+    }
+
+    .explainer h3 {
+      font-size: 0.9375rem;
+      color: var(--fg);
+      margin-bottom: 0.5rem;
+    }
+
+    .explainer ol {
+      padding-left: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .explainer li {
+      margin-bottom: 0.25rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Is My Data in AI?</h1>
+    <p class="subtitle">Canary Token Generator by AumOS</p>
+
+    <div class="card">
+      <h2>Generate a Canary Token</h2>
+      <p>
+        Embed this token in your documents, emails, or private content.
+        If you see it reproduced in AI-generated output, your data was
+        likely used for training or retrieval.
+      </p>
+      <button id="generateBtn" type="button">Generate Token</button>
+      <div id="tokenOutput" class="token-output"></div>
+      <button id="copyBtn" class="copy-btn" style="display: none;" type="button">Copy to Clipboard</button>
+    </div>
+
+    <div class="card">
+      <h2>Check a Token</h2>
+      <p>
+        Paste your token ID to see if anyone has reported seeing it
+        in AI-generated output.
+      </p>
+      <div class="check-section">
+        <input id="checkInput" type="text" placeholder="Enter token ID..." />
+        <button id="checkBtn" type="button">Check</button>
+      </div>
+      <div id="checkStatus" class="status"></div>
+    </div>
+
+    <div class="explainer">
+      <h3>How It Works</h3>
+      <ol>
+        <li>Click "Generate Token" to create a unique canary string.</li>
+        <li>Copy the string and embed it in your documents or content.</li>
+        <li>If you later encounter the exact string in AI output, your content was ingested.</li>
+        <li>Use the "Check" feature to see if others have reported sightings of your token.</li>
+      </ol>
+      <p>
+        No personal data is stored. Only random token identifiers are kept
+        on the server. See the project documentation for full privacy details.
+      </p>
+    </div>
+
+    <footer>
+      AumOS Open Source — Apache-2.0 License
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var API_BASE = window.location.origin;
+
+      var generateBtn = document.getElementById("generateBtn");
+      var tokenOutput = document.getElementById("tokenOutput");
+      var copyBtn = document.getElementById("copyBtn");
+      var checkBtn = document.getElementById("checkBtn");
+      var checkInput = document.getElementById("checkInput");
+      var checkStatus = document.getElementById("checkStatus");
+
+      var lastCanaryString = "";
+
+      generateBtn.addEventListener("click", function () {
+        generateBtn.disabled = true;
+        generateBtn.textContent = "Generating...";
+
+        fetch(API_BASE + "/generate", { method: "POST" })
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            lastCanaryString = data.canaryString;
+            tokenOutput.textContent = data.canaryString;
+            tokenOutput.classList.add("visible");
+            copyBtn.style.display = "inline-block";
+            generateBtn.textContent = "Generate Another";
+            generateBtn.disabled = false;
+          })
+          .catch(function () {
+            tokenOutput.textContent = "Failed to generate token. Please try again.";
+            tokenOutput.classList.add("visible");
+            generateBtn.textContent = "Generate Token";
+            generateBtn.disabled = false;
+          });
+      });
+
+      copyBtn.addEventListener("click", function () {
+        if (!lastCanaryString) return;
+        navigator.clipboard.writeText(lastCanaryString).then(function () {
+          copyBtn.textContent = "Copied!";
+          setTimeout(function () { copyBtn.textContent = "Copy to Clipboard"; }, 1500);
+        });
+      });
+
+      checkBtn.addEventListener("click", function () {
+        var tokenId = checkInput.value.trim();
+        if (!tokenId) {
+          checkStatus.textContent = "Please enter a token ID.";
+          checkStatus.className = "status visible error";
+          return;
+        }
+
+        checkBtn.disabled = true;
+        checkBtn.textContent = "Checking...";
+
+        fetch(API_BASE + "/check/" + encodeURIComponent(tokenId))
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            if (!data.found) {
+              checkStatus.textContent = "Token not found. It may have expired or never been generated.";
+              checkStatus.className = "status visible error";
+            } else if (data.reported) {
+              checkStatus.textContent =
+                "REPORTED: This token was seen in AI output. " +
+                "Report count: " + data.reportCount +
+                ". First reported: " + data.firstReportedAt;
+              checkStatus.className = "status visible reported";
+            } else {
+              checkStatus.textContent = "Token exists but has not been reported in any AI output yet.";
+              checkStatus.className = "status visible safe";
+            }
+            checkBtn.textContent = "Check";
+            checkBtn.disabled = false;
+          })
+          .catch(function () {
+            checkStatus.textContent = "Failed to check token. Please try again.";
+            checkStatus.className = "status visible error";
+            checkBtn.textContent = "Check";
+            checkBtn.disabled = false;
+          });
+      });
+    })();
+  </script>
+</body>
+</html>

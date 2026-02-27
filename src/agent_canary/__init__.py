@@ -29,6 +29,14 @@ from agent_canary.alerter import (
 )
 from agent_canary.detector import CanaryDetector
 from agent_canary.generator import CanaryGenerator
+from agent_canary.honeypot import HoneypotConfig, HoneypotEntry, HoneypotMemory
+from agent_canary.pii_integration import (
+    PII_FORMAT_TEMPLATES,
+    PIICanaryStrategy,
+    create_pii_canary,
+    validate_pii_canary,
+)
+from agent_canary.pipeline_locator import LocatorResult, PipelineLocator, PipelineStage
 from agent_canary.store import CanaryStore
 from agent_canary.types import (
     AlertSeverity,
@@ -60,4 +68,17 @@ __all__ = [
     "EmailAlerter",
     "SmtpConfig",
     "CompositeAlerter",
+    # Pipeline locator
+    "PipelineLocator",
+    "PipelineStage",
+    "LocatorResult",
+    # PII integration
+    "PIICanaryStrategy",
+    "PII_FORMAT_TEMPLATES",
+    "create_pii_canary",
+    "validate_pii_canary",
+    # Honeypot
+    "HoneypotMemory",
+    "HoneypotConfig",
+    "HoneypotEntry",
 ]

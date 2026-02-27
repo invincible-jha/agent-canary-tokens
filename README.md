@@ -1,5 +1,7 @@
 # agent-canary-tokens
 
+[![Governance Score](https://img.shields.io/badge/governance-self--assessed-blue)](https://github.com/aumos-ai/agent-canary-tokens)
+
 Plant synthetic canary facts in agent systems to detect memory breaches
 and data exfiltration.
 
