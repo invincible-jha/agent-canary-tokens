@@ -1,6 +1,8 @@
 # agent-canary-tokens
 
 [![Governance Score](https://img.shields.io/badge/governance-self--assessed-blue)](https://github.com/aumos-ai/agent-canary-tokens)
+[![PyPI](https://img.shields.io/pypi/v/agent-canary-tokens?label=pypi)](https://pypi.org/project/agent-canary-tokens/)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
 
 Plant synthetic canary facts in agent systems to detect memory breaches
 and data exfiltration.
@@ -8,6 +10,30 @@ and data exfiltration.
 A standalone Python security library with zero external dependencies.
 Works with any agent framework: LangChain, AutoGen, CrewAI, custom stacks,
 or anything that processes text.
+
+---
+
+## Why Does This Exist?
+
+Banks have used dye packs for decades. A dye pack is a device hidden inside a bundle of real currency. If a robber grabs the bundle and takes it out of the bank, the pack detonates — marking the bills with permanent dye that makes them traceable and worthless. The robber walks away thinking they have stolen something valuable. What they actually have is evidence.
+
+AI agents present an analogous problem. An agent ingests sensitive context — user data, internal documents, API credentials — through system prompts, retrieval pipelines, and memory stores. If that context leaks into model outputs, tool calls, or external API requests, the leak is often completely invisible. There is no error. There is no alarm. The agent just keeps running while sensitive data flows somewhere it should not.
+
+Canary tokens are the digital dye pack for AI agents. You plant a fabricated fact that looks entirely real — a fake contact name, a synthetic API key, a document ID that exists nowhere in your actual systems — and you inject it alongside real data in the agent's context. If that canary fact appears anywhere it should not (a model response, a tool call payload, an external log), you know immediately: which context was breached, when the canary was planted, and exactly where the leak appeared.
+
+**What happens without canary tokens?** Data exfiltration by AI agents is silent. You may not discover a prompt injection attack until customer data appears somewhere public. You may not know your retrieval pipeline is leaking until a model starts hallucinating with suspicious specificity. Canary tokens give you tripwires — cheap, low-overhead sensors that fire the moment something goes wrong.
+
+This library is a standalone Python package with zero external dependencies. It works with any agent framework or none at all.
+
+---
+
+## Who Is This For?
+
+| Audience | Use Case |
+|---|---|
+| **Developers** | Add canary monitoring to any agent pipeline in under 10 lines of code |
+| **Security Engineers** | Detect prompt injection, context leakage, and unauthorized data exfiltration |
+| **Enterprise** | Compliance and audit trail for sensitive data flowing through LLM systems |
 
 ---
 
@@ -25,31 +51,43 @@ where it appeared.
 
 ---
 
-## Quickstart
+## Quick Start
+
+**Prerequisites:** Python 3.10 or later. No other dependencies.
+
+```bash
+pip install agent-canary-tokens
+```
 
 ```python
 from agent_canary import CanaryGenerator, CanaryDetector, CanaryStore, LogAlerter
 
-# Set up
+# 1. Set up the canary system (once at startup)
 store = CanaryStore()
 generator = CanaryGenerator(store=store)
-alerter = LogAlerter()
-detector = CanaryDetector(store=store, alerter=alerter)
+detector = CanaryDetector(store=store, alerter=LogAlerter())
 
-# Plant a canary in agent context
+# 2. Plant a canary fact — inject fact.value into your agent's context
 fact = generator.plant(context="system_prompt")
 print(fact.value)
 # Contact: Elowyn Coldfen
 # Email: cnry-a1b2c3d4e5f6@canary-test.invalid
 # Phone: +1-555-4829301
 
-# Inject fact.value into your agent's context alongside real data
-
-# After each LLM response, scan for leaks
+# 3. After every LLM response, scan for leaks
+llm_response = "Here is the contact info: cnry-a1b2c3d4e5f6@canary-test.invalid"
 alerts = detector.check_text(llm_response, source="llm_output")
 if alerts:
     print(f"Breach detected: {alerts[0].summary()}")
+    # Breach detected: canary 'cnry-a1b2c3d4e5f6' appeared in 'llm_output'
 ```
+
+**Expected output when a leak is detected:**
+```
+Breach detected: canary 'cnry-a1b2c3d4e5f6' appeared in 'llm_output'
+```
+
+**What just happened?** You planted a fabricated contact record into your agent's context. The canary email address (`cnry-a1b2c3d4e5f6@canary-test.invalid`) appears nowhere in your real data. When the LLM response included that address, the detector matched it against the canary store and fired an alert. In a real system, this alert would tell you that your system prompt context is leaking into agent outputs — before any real user data does the same.
 
 ---
 
@@ -187,6 +225,27 @@ generator = CanaryGenerator(strategies=[strategy], store=store)
 
 ---
 
+## Architecture Overview
+
+```mermaid
+graph TD
+    A["CanaryGenerator"] -->|registers token| B["CanaryStore<br/>(thread-safe, JSON-persistent)"]
+    A -->|returns| C["CanaryFact<br/>(fake value to inject)"]
+    C -->|injected into| D["Agent Context<br/>(system prompt / memory / retrieval)"]
+    D -->|processed by| E["LLM"]
+    E -->|response text| F["CanaryDetector"]
+    F -->|looks up fingerprint in| B
+    F -->|match found| G["CanaryAlerter"]
+    G --> H["LogAlerter"]
+    G --> I["WebhookAlerter"]
+    G --> J["EmailAlerter"]
+    G --> K["CompositeAlerter"]
+```
+
+The library is entirely standalone. It has no knowledge of which agent framework you use — it operates on plain text strings. You feed it context when planting, and you feed it LLM output when detecting. Everything in between is your agent.
+
+---
+
 ## Examples
 
 Three runnable examples in `examples/`:
@@ -202,6 +261,17 @@ Three runnable examples in `examples/`:
 - `docs/strategies.md` — strategy reference and authoring guide
 - `docs/detection.md` — how detection works, performance, thread safety
 - `docs/deployment.md` — installation, persistence, rotation, framework integration
+
+---
+
+## Related Projects
+
+| Project | Description |
+|---|---|
+| [`agents-md-spec`](https://github.com/aumos-ai/agents-md-spec) | Declare what AI agents are allowed to do on your site — the "robots.txt for AI agents" |
+| [`mcp-server-trust-gate`](https://github.com/aumos-ai/mcp-server-trust-gate) | Enforce trust level requirements on MCP tool calls before execution |
+| [`aumos-core`](https://github.com/aumos-ai/aumos-core) | Core AumOS governance SDK — runtime policy enforcement for agent systems |
+| [`aumos-audit-logger`](https://github.com/aumos-ai/aumos-core) | Structured audit trail for agent actions, including canary breach events |
 
 ---
 
