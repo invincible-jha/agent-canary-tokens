@@ -19,6 +19,11 @@ Quickstart
 >>> assert len(alerts) == 1
 """
 
+from agent_canary.aho_corasick import (
+    AhoCorasickAutomaton,
+    CanaryMatch,
+    build_automaton_from_store,
+)
 from agent_canary.alerter import (
     CanaryAlerter,
     CompositeAlerter,
@@ -37,6 +42,7 @@ from agent_canary.pii_integration import (
     validate_pii_canary,
 )
 from agent_canary.pipeline_locator import LocatorResult, PipelineLocator, PipelineStage
+from agent_canary.semantic import SemanticCanaryDetector, SemanticMatch
 from agent_canary.store import CanaryStore
 from agent_canary.types import (
     AlertSeverity,
@@ -81,4 +87,11 @@ __all__ = [
     "HoneypotMemory",
     "HoneypotConfig",
     "HoneypotEntry",
+    # Semantic detection
+    "SemanticCanaryDetector",
+    "SemanticMatch",
+    # Aho-Corasick scanning
+    "AhoCorasickAutomaton",
+    "CanaryMatch",
+    "build_automaton_from_store",
 ]

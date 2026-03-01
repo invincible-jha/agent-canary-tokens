@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agent-canary-tokens"
+name = "aumos-canary-tokens"
 version = "0.1.0"
 description = "Plant synthetic canary facts in agent systems to detect memory breaches and data exfiltration."
 readme = "README.md"
